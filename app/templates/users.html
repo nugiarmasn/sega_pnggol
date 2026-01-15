@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="fw-bold mb-4">User Management</h2>
+    
+    <!-- Menampilkan pesan Flash (Sukses/Gagal hapus) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">User Profile</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined Date</th>
+                        
+                        <!-- PERBAIKAN 1: Tambahkan text-center dan width agar rapi -->
+                        <th class="text-center" style="width: 120px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ user.profile_image_url if user.profile_image_url else 'https://via.placeholder.com/40' }}" 
+                                     class="rounded-circle me-3 border" width="45" height="45" style="object-fit: cover;">
+                                <div>
+                                    <div class="fw-bold text-dark">{{ user.full_name }}</div>
+                                    <div class="small text-muted">{{ user.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if user.role == 'ADMIN' %}
+                                <span class="badge bg-primary">ADMIN</span>
+                            {% else %}
+                                <span class="badge bg-secondary">USER</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_online %}
+                                <span class="badge bg-success"><i class="fas fa-circle me-1" style="font-size: 8px;"></i> Online</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark border">Offline</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Menangani jika Tanggal Kosong -->
+                        <td class="text-muted small">
+                            {{ user.join_date if user.join_date else '-' }}
+                        </td>
+
+                        <!-- PERBAIKAN 2: Ubah jadi text-center -->
+                        <td class="text-center">
+                            <a href="{{ url_for('admin_bp.delete_user', uid=user.uid) }}" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('⚠️ PERINGATAN:\nUser {{ user.full_name }} akan dihapus permanen.\nLanjutkan?');"
+                               title="Hapus User">
+                               <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">Belum ada user terdaftar.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="fw-bold mb-4">User Feedbacks</h2>
+
+    <!-- Tampilkan Flash Message (Sukses Hapus) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">User</th>
+                        <th>Rating</th>
+                        <th style="width: 40%;">Message</th>
+                        <th>Date</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in feedbacks %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ f.user_photo if f.user_photo else 'https://via.placeholder.com/40' }}" 
+                                     class="rounded-circle me-3 border" width="40" height="40" style="object-fit: cover;">
+                                <div>
+                                    <div class="fw-bold">{{ f.user_name }}</div>
+                                    <div class="small text-muted">{{ f.user_email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-warning small">
+                                {% for i in range(f.rating) %}<i class="fas fa-star"></i>{% endfor %}
+                            </div>
+                        </td>
+                        <td>{{ f.message }}</td>
+                        <td class="text-muted small">{{ f.date_str }}</td>
+                        <td class="text-end pe-4">
+                            <!-- TOMBOL BALAS (MAILTO) -->
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to={{ f.user_email }}&su=Balasan Feedback MyHeadStyle&body=Halo {{ f.user_name }},%0A%0ATerima kasih atas masukan Anda: '{{ f.message }}'.%0A%0A%0A-- Admin MyHeadStyle" 
+                                target="_blank"
+                                class="btn btn-sm btn-primary me-1" 
+                                title="Balas via Gmail">
+                             <i class="fas fa-reply"></i>
+                            </a>
+                            
+                            <!-- TOMBOL HAPUS (Merah) -->
+                            <a href="{{ url_for('admin_bp.delete_feedback', id=f.id) }}" 
+                               class="btn btn-sm btn-outline-danger" 
+                               onclick="return confirm('Yakin ingin menghapus feedback ini?');"
+                               title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">Belum ada feedback masuk.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
